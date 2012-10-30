@@ -1,4 +1,6 @@
 (define (expand expr)
+  ; Expands begin, case, cond, let and let* in terms of if and lambda.
+  ; Useful for preprocessing scheme code before compilation. 
 
   (define (expand-begin expr)
     (list (cons 'lambda (cons '() (expand-expr (cdr expr))))))
