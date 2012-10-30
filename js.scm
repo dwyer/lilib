@@ -137,6 +137,9 @@
                  "==="
                  type))
 
+(define (scm->js expr)
+  (eval-expr (expand expr) #f))
+
 (define (loop)
   (let ((expr (read)))
     (if (not (eof-object? expr))
@@ -145,4 +148,4 @@
              (loop)))
     ""))
 
-(loop)
+;(loop)
