@@ -80,7 +80,7 @@
 	(iter (table rel1) (table rel2))))
 
 ; natural join
-(define (join rel1 rel2)
+(define (natural-join rel1 rel2)
   (let* ((scm1 (schema rel1))
 	 (scm2 (schema rel2))
 	 (lst (append scm1 scm2))

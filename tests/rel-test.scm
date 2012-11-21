@@ -35,4 +35,4 @@
 
 (let ((employee (relation 'employee db))
       (dept (relation 'dept db)))
-  (print-rel (join employee dept)))
+  (print-rel (natural-join employee dept)))
