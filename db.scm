@@ -145,7 +145,7 @@
       (cdr res)
       (error "no such relation" name))))
 
-(define (rel->alists rel)
+(define (relation->alists rel)
   (map (lambda (tup) (tuple->alist (schema rel) tup)) (tuples rel)))
 
 (define (tuple->alist scm tup)
