@@ -139,12 +139,6 @@
 (define (avg attr rel)
   (/ (sum attr rel) (count attr rel)))
 
-(define (connect filename)
-  (read-file filename))
-
-(define (commit filename db)
-  (write-file filename db))
-
 (define (relation name db)
   (let ((res (assq name db)))
     (if res
