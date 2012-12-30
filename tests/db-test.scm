@@ -1,4 +1,4 @@
-(load "rel.scm")
+(load "../db.scm")
 
 (define (print obj)
   (display obj)
