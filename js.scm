@@ -100,6 +100,7 @@
       ((if) (eval-if args ret?))
       ((lambda) (eval-lambda args ret?))
       ((or) (eval-operation '|| args ret?))
+      ((set!) (eval-set! args ret?))
       ((load newline)
        (string-append "/*..." (symbol->string tag) "...*/"))
       (else (eval-proc-call expr ret?)))))
@@ -117,6 +118,14 @@
         (string-append (eval-expr first #f)
                        ";"
                        (eval-seq rest ret?))))))
+
+(define (eval-set! expr ret?)
+  (let ((var (car expr))
+        (val (cadr expr)))
+    (string-append (eval-expr var #f)
+                   "="
+                   (eval-expr val #f)
+                   ";")))
 
 (define (eval-symbol expr)
   (define (iter lst)
