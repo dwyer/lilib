@@ -55,3 +55,7 @@
           (unquote-data value)
           #f))
       #f)))
+
+(define (display-html html)
+  (display "Content-type: text/html\n\n")
+  (display html))
