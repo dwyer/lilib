@@ -15,10 +15,10 @@
         (let* ((this (car seq))
                (rest (cdr seq))
                (pred (car this))
-               (con (cadr this)))
+               (con (cdr this)))
           (if (eq? pred 'else)
             (expand-expr con)
-            (list 'if (expand-expr pred) (expand-expr con) (iter rest))))))
+            (list 'if (expand-expr pred) (expand-expr (cons 'begin con)) (iter rest))))))
     (iter (cdr expr)))
 
   (define (expand-define expr)
