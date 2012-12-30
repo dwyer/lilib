@@ -7,7 +7,9 @@
 
   (define (atom->string expr)
     (cond ((number? expr) (number->string expr))
+          ((boolean? expr) (if expr "#t" "#f"))
           (else expr)))
+
   (define (iter expr)
     (cond ((null? expr) '())
           ((tagged-list? expr)
