@@ -41,8 +41,8 @@
   (list->string (iter (string->list str))))
 
 (define (request-data-alist)
-  (map (lambda (str) (string-split str "="))
-       (string-split request-data-string "&")))
+  (map (lambda (str) (string-split str #\=))
+       (string-split request-data-string #\&)))
 
 (define (request-data-pair key)
   (assoc key (request-data-alist)))
