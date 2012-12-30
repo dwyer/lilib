@@ -122,10 +122,9 @@
 (define (eval-set! expr ret?)
   (let ((var (car expr))
         (val (cadr expr)))
-    (string-append (eval-expr var #f)
+    (string-append (eval-expr var ret?)
                    "="
-                   (eval-expr val #f)
-                   ";")))
+                   (eval-expr val #f))))
 
 (define (eval-symbol expr)
   (define (iter lst)
