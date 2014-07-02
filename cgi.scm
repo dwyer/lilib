@@ -1,48 +1,60 @@
-(define (get-environment-variable key)
-  (or (getenv key) ""))
+(load "char.scm")
+(load "list.scm")
 
-(define (get-request-method)
+(define (request-method)
   (get-environment-variable "REQUEST_METHOD"))
 
-(define (post-request?)
-  (string=? (get-request-method) "POST"))
+(define (request-method-post?)
+  (string=? (request-method) "POST"))
 
-(define (get-request?)
-  (not (post-request?)))
+(define (request-method-get?)
+  (not (request-method-post?)))
 
 (define (query-string)
   (get-environment-variable "QUERY_STRING"))
 
-(define request-data-string
-  (if (get-request?)
-    (query-string)
-    (symbol->string (read))))
+(define (query-list)
+  (string->list (query-string)))
 
-(define (unquote-data str)
-  (define (char->num char)
-    (cond ((char=? char #\A) 10)
-          ((char=? char #\B) 11)
-          ((char=? char #\C) 12)
-          ((char=? char #\D) 13)
-          ((char=? char #\E) 14)
-          ((char=? char #\F) 15)
-          (else (string->number (string char)))))
-  (define (iter lst)
-    (if (null? lst)
+(define (read-chars)
+  (let loop ((chr (read-char)))
+    (if (eof-object? chr)
       '()
-      (let ((char (car lst)))
-        (cond ((char=? char #\+)
-               (cons #\space (iter (cdr lst))))
-              ((char=? char #\%)
-               (cons (integer->char (+ (* 16 (char->num (cadr lst)))
-                                       (char->num (caddr lst))))
-                     (iter (cdddr lst))))
-              (else (cons char (iter (cdr lst))))))))
-  (list->string (iter (string->list str))))
+      (cons chr (loop (read-char))))))
 
-(define (request-data-alist)
-  (map (lambda (str) (string-split str #\=))
-       (string-split request-data-string #\&)))
+(define post-data-list
+  (let ((result #f))
+    (lambda ()
+      (if (not result)
+        (set! result (read-chars)))
+      result)))
+
+(define (post-data-string)
+  (list->string (post-data-list)))
+
+(define (post-data-alist)
+  (map (lambda (lst)
+         (map list->string
+              (list-split lst #\=)))
+       (list-split (post-data-list) #\&)))
+
+(define (unquote-data lst)
+  (cond ((null? lst) '())
+        ((and (eqv? (car lst) #\%)
+              (and (not (null? (cdr lst)))
+                   (char-digit? (cadr lst) 16))
+              (and (not (null? (cddr lst)))
+                   (char-digit? (caddr lst) 16)))
+         (cons (integer->char
+                 (string->number
+                   (list->string
+                     (list #\# #\x (cadr lst) (caddr lst)))))
+               (unquote-data (cdddr lst))))
+        (else (cons (let ((chr (car lst)))
+                      (if (eqv? chr #\+)
+                        #\space
+                        chr))
+                    (unquote-data (cdr lst))))))
 
 (define (request-data-pair key)
   (assoc key (request-data-alist)))
@@ -55,6 +67,13 @@
           (unquote-data value)
           #f))
       #f)))
+
+(define (parse-query lst)
+  (map (lambda (lst)
+         (map (lambda (lst)
+                (list->string (unquote-data lst)))
+              (list-split lst #\=)))
+       (list-split lst #\&)))
 
 (define (display-html html)
   (display "Content-type: text/html\n\n")
