@@ -1,6 +1,5 @@
-(load "../html.scm")
-(load "../js.scm")
-(load "../string.scm")
+(load "html.scm")
+(load "string.scm")
 
 (define author "Casey Dwyer")
 (define description (string-append author "'s Home Page"))
@@ -9,11 +8,7 @@
 (define title description)
 (define subtitle "Hello, world!")
 (define links '("http://caseydwyer.org/"
-                "https://www.facebook.com/cdwyer"
-                "https://twitter.com/caseydwyer"
                 "https://github.com/dwyer"))
-
-(define script `(alert ,subtitle))
 
 (define expr
   `(html
@@ -23,7 +18,6 @@
        (meta name "description" content ,description)
        (meta name "keywords" content ,(string-join keywords ","))
        (title ,title)
-       ;(script language "javascript" ,(scm->js script))
        )
      (body
        (h1 ,title)

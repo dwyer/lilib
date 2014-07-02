@@ -1,8 +1,5 @@
-(load "../db.scm")
-
-(define (print obj)
-  (display obj)
-  (newline))
+(load "db.scm")
+(load "io.scm")
 
 (define E
   '((nr name    salary)
