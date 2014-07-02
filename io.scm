@@ -1,0 +1,11 @@
+(define (print . args)
+  (do ((args args (cdr args)))
+    ((null? args) (display #\newline))
+    (display (car args))
+    (display #\space)))
+
+(define (read-chars)
+  (let loop ((chr (read-char)))
+    (if (eof-object? chr)
+      '()
+      (cons chr (loop (read-char))))))
