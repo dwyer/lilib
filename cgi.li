@@ -2,69 +2,63 @@
 (import io)
 (import list)
 
-(define request-environment
-  (let ((env false))
-    (lambda ()
-      (if (not env)
-        (set! env
-          (map (lambda (x)
-                 (apply cons*
-                        (map list->string
-                             (list-split (string->list x)
-                                         %\= 1))))
-               (environ))))
-      env)))
+(define (request)
+    (let ((method (request-method)))
+      (list (cons 'method method)
+            (cons 'GET (request-query-alist))
+            (cons 'POST (if (eq? method 'POST)
+                          (url-encoded-data->alist (request-message-body))
+                          null))
+            (cons 'env 
+                  (map (lambda (x)
+                         (apply cons*
+                                (map list->string
+                                     (list-split (string->list x)
+                                                 %\= 1))))
+                       (environ))))))
 
-(define (request-method)
-  (let ((val (getenv "REQUEST_METHOD")))
-    (if val (string->symbol val) 'GET)))
-
-(define (request-method-get?)
-  (eq? (request-method) 'GET))
-
-(define (request-method-post?)
-  (eq? (request-method) 'POST))
-
-(define post-data-list
+(define request-message-body
   (let ((result false))
     (lambda ()
       (if (not result)
         (set! result (read-chars)))
       result)))
 
-(define (post-data-alist)
-       (list-split (post-data-list) %\&)))
+(define (request-method)
+  (let ((val (getenv "REQUEST_METHOD")))
+    (if val (string->symbol val) 'GET)))
 
-(define (query-data)
-  (let ((val (getenv "QUERY_STRING")))
-    (if val
-      (url-encoded-string->alist val)
+(define (request-query-alist)
+  (let ((query-string (getenv "QUERY_STRING")))
+    (if query-string
+      (url-encoded-string->alist query-string)
       null)))
-
-(define (url-encoded-data->string lst)
-  (cond ((null? lst) null)
-        ((and (eqv? (car lst) %\%)
-              (and (not (null? (cdr lst)))
-                   (char-digit? (cadr lst) 16))
-              (and (not (null? (cddr lst)))
-                   (char-digit? (caddr lst) 16)))
-         (cons (integer->char
-                 (string->number
-                   (list->string
-                     (list %\0 %\x (cadr lst) (caddr lst)))))
-               (url-encoded-data->string (cdddr lst))))
-        (else (cons (let ((chr (car lst)))
-                      (if (eqv? chr %\+)
-                        %\space
-                        chr))
-                    (url-encoded-data->string (cdr lst))))))
 
 (define (url-encoded-data->alist chars)
   (map (lambda (x)
-         (apply cons* (map (lambda (x)
-                             (list->string (url-encoded-data->string x)))
+         (apply cons* (map url-encoded-data->string
                            (list-split x %\= 1))))
        (list-split chars %\&)))
+
+(define (url-encoded-data->string lst)
+  (list->string
+    (let iter ((lst lst))
+      (cond ((null? lst) null)
+            ((and (eqv? (car lst) %\%)
+                  (and (not (null? (cdr lst)))
+                       (char-digit? (cadr lst) 16))
+                  (and (not (null? (cddr lst)))
+                       (char-digit? (caddr lst) 16)))
+             (cons (integer->char
+                     (string->number
+                       (list->string
+                         (list %\0 %\x (cadr lst) (caddr lst)))))
+                   (iter (cdddr lst))))
+            (else (cons (let ((chr (car lst)))
+                          (if (eqv? chr %\+)
+                            %\space
+                            chr))
+                        (iter (cdr lst))))))))
 
 (define (url-encoded-string->alist str)
   (url-encoded-data->alist (string->list str)))
