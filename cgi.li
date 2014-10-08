@@ -1,4 +1,5 @@
 (import char)
+(import io)
 (import list)
 
 (define request-environment
@@ -23,12 +24,6 @@
 
 (define (request-method-post?)
   (eq? (request-method) 'POST))
-
-(define (read-chars)
-  (let loop ((chr (read-char)))
-    (if (eof-object? chr)
-      '()
-      (cons chr (loop (read-char))))))
 
 (define post-data-list
   (let ((result false))
