@@ -14,15 +14,22 @@
     init
     (fold-right proc (proc init (car lst)) (cdr lst))))
 
-(define (list-split lst obj)
-  (let loop ((next lst)
-             (last '()))
-    (cond ((null? next)
-           (list last))
-          ((equal? (car next) obj)
-           (cons last (loop (cdr next) '())))
-          (else (loop (cdr next)
-                      (append last (list (car next))))))))
+(define list-split
+  (letrec ((*list-split*
+             (lambda (lst obj n)
+               (let loop ((next lst) (last null) (n n))
+                 (cond ((null? next) (list last))
+                       ((equal? (car next) obj)
+                        (if (= n 1)
+                          (cons last (list (cdr next)))
+                          (cons last (loop (cdr next) null (- n 1)))))
+                       (else (loop (cdr next)
+                                   (append last (list (car next)))
+                                   n)))))))
+    (lambda (lst obj . args)
+      (if (zero? (length args))
+        (*list-split* lst obj 0)
+        (apply *list-split* `(,lst ,obj ,@args))))))
 
 (define (take lst k)
   (if (zero? k)
