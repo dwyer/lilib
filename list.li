@@ -1,3 +1,9 @@
+(define (cons* x . ys)
+  (cons x (let iter ((ys ys))
+            (cond ((null? ys) null)
+                  ((null? (cdr ys)) (car ys))
+                  (else (cons (car ys) (iter (cdr ys))))))))
+
 (define (fold-left proc init lst)
   (if (null? lst)
     init
