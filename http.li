@@ -49,8 +49,8 @@
       (url-encoded-string->alist val)
       null)))
 
-(define (unquote-data lst)
-  (cond ((null? lst) '())
+(define (url-encoded-data->string lst)
+  (cond ((null? lst) null)
         ((and (eqv? (car lst) %\%)
               (and (not (null? (cdr lst)))
                    (char-digit? (cadr lst) 16))
@@ -60,17 +60,17 @@
                  (string->number
                    (list->string
                      (list %\# %\x (cadr lst) (caddr lst)))))
-               (unquote-data (cdddr lst))))
+               (url-encoded-data->string (cdddr lst))))
         (else (cons (let ((chr (car lst)))
                       (if (eqv? chr %\+)
                         %\space
                         chr))
-                    (unquote-data (cdr lst))))))
+                    (url-encoded-data->string (cdr lst))))))
 
 (define (url-encoded-data->alist chars)
   (map (lambda (x)
          (apply cons* (map (lambda (x)
-                             (list->string (unquote-data x)))
+                             (list->string (url-encoded-data->string x)))
                            (list-split x %\= 1))))
        (list-split chars %\&)))
 
