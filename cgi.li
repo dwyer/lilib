@@ -33,9 +33,6 @@
       result)))
 
 (define (post-data-alist)
-  (map (lambda (lst)
-         (map list->string
-              (list-split lst %\= 1)))
        (list-split (post-data-list) %\&)))
 
 (define (query-data)
@@ -54,7 +51,7 @@
          (cons (integer->char
                  (string->number
                    (list->string
-                     (list %\# %\x (cadr lst) (caddr lst)))))
+                     (list %\0 %\x (cadr lst) (caddr lst)))))
                (url-encoded-data->string (cdddr lst))))
         (else (cons (let ((chr (car lst)))
                       (if (eqv? chr %\+)
